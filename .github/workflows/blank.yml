@@ -28,6 +28,9 @@ jobs:
       - name: Print current path
         run: pwd
 
+      - name: List files
+        run: ls -la
+
       - name: Extract version from Libs.versions.toml
         id: extract_version
         run: |
