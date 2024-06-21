@@ -28,7 +28,7 @@ jobs:
       - name: Extract version from Libs.versions.toml
         id: extract_version
         run: |
-          version=$(grep 'cicdtest' ./CICDTest/gradle/libs.versions.toml | awk -F ' = ' '{print $2}' | tr -d '"')
+          version=$(grep 'cicdtest' ../../gradle/libs.versions.toml | awk -F ' = ' '{print $2}' | tr -d '"')
           echo "::set-output name=version::$version"
 
       - name: Set up Git
