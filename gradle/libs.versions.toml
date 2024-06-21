@@ -1,5 +1,5 @@
 [versions]
-cicdtest = "0.0.1"
+cicdtest = "0.0.2"
 agp = "8.2.2"
 kotlin = "1.9.22"
 

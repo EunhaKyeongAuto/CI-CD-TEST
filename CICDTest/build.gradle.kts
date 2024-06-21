@@ -5,6 +5,18 @@ plugins {
     id("maven-publish")
 }
 
+afterEvaluate {
+    publishing {
+        publications {
+            register<MavenPublication>("release") {
+                artifactId = "ci-cd-test"
+                version = "0.0.2"
+                from(components["release"])   //aar 파일
+            }
+        }
+    }
+}
+
 android {
     namespace = "com.example.cicdtest"
     compileSdk = 34
