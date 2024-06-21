@@ -10,7 +10,7 @@ afterEvaluate {
         publications {
             register<MavenPublication>("release") {
                 artifactId = "ci-cd-test"
-                version = "0.0.2"
+                version = "0.0.3"
                 from(components["release"])   //aar 파일
             }
         }
