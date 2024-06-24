@@ -14,6 +14,10 @@ jobs:
     if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'release'
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        build-type: [ debug, release, qa ]
+
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -25,37 +29,59 @@ jobs:
         with:
           java-version: '17'
 
-      - name: Print current path
-        run: pwd
-
-      - name: List files
-        run: ls -la
-
-      - name: Extract version from Libs.versions.toml
-        id: extract_version
-        run: |
-          version=$(grep 'version' ./CICDTest/build.gradle.kts | awk -F ' = ' '{print $2}' | tr -d '"')
-          echo "::set-output name=version::$version"
-
       - name: Set up Git
         run: |
           git config user.name "EunhaKyeongAuto"
           git config user.email "ehkyeong.auto@gmail.com"
 
+      - name: Extract versionName from build.gradle.kts
+        id: extract_version_name
+        run: |
+          versionName=$(grep 'val versionName' ./CICDTest/build.gradle.kts | awk -F ' = ' '{print $2}' | tr -d '"')
+          echo "::set-output name=versionName::versionName"
+
+      - name: Build AAR
+        run: ./gradlew assemble ${{ matrix.build-type.capitalize() }}
+
+      - name: Upload AAR
+        uses: actions/upload-artifact@v2
+        with:
+          name: CICDTest-${{ steps.extract_version_name.outputs.versionName }}-${{ matrix.build-type }}-aar
+          path: CICDTest/build/outputs/aar/CICDTest-${{ matrix.build-type }}.aar
+
       - name: Create Tag
         run: |
-          git tag ${{ steps.extract_version.outputs.version }}
-          git push origin ${{ steps.extract_version.outputs.version }}
-          
-      - name: Create GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
-        with:
-          tag_name: ${{ steps.extract_version.outputs.version }}
-          release_name: Release ${{ steps.extract_version.outputs.version }}
-          body: |
-            Changes in this release:
-            ${{ github.event.pull_request.title }}
-          draft: false
-          prerelease: true
+          git tag -a v${{ steps.extract_version_name.outputs.versionName }}-${{ matrix.build-type }} -m "Release for ${{ steps.extract_version_name.outputs.versionName }}-${{ matrix.build-type }}"
+          git push origin v${{ steps.extract_version_name.outputs.versionName }}-${{ matrix.build-type }}
+
+#      - name: List files
+#        run: ls -la
+#
+#      - name: Extract version from Libs.versions.toml
+#        id: extract_version
+#        run: |
+#          version=$(grep 'version' ./CICDTest/build.gradle.kts | awk -F ' = ' '{print $2}' | tr -d '"')
+#          echo "::set-output name=version::$version"
+#
+#      - name: Set up Git
+#        run: |
+#          git config user.name "EunhaKyeongAuto"
+#          git config user.email "ehkyeong.auto@gmail.com"
+#
+#      - name: Create Tag
+#        run: |
+#          git tag ${{ steps.extract_version.outputs.version }}
+#          git push origin ${{ steps.extract_version.outputs.version }}
+#
+#      - name: Create GitHub Release
+#        uses: actions/create-release@v1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+#        with:
+#          tag_name: ${{ steps.extract_version.outputs.version }}
+#          release_name: Release ${{ steps.extract_version.outputs.version }}
+#          body: |
+#            Changes in this release:
+#            ${{ github.event.pull_request.title }}
+#          draft: false
+#          prerelease: true
