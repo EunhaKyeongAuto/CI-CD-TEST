@@ -10,7 +10,7 @@ afterEvaluate {
         publications {
             register<MavenPublication>("release") {
                 artifactId = "ci-cd-test"
-                version = "0.0.3"
+                version = "0.0.4"
                 from(components["release"])   //aar 파일
             }
         }
@@ -37,10 +37,12 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+
     kotlinOptions {
         jvmTarget = "17"
     }
