@@ -8,35 +8,11 @@ plugins {
 afterEvaluate {
     publishing {
         publications {
-            val versionName = "0.0.3"
-
-            create("debug", MavenPublication::class) {
-                artifactId = "ci-cd-test-debug"
-                version = "${versionName}-debug"
-                from(components["debug"])
+            register<MavenPublication>("release") {
+                artifactId = "ci-cd-test"
+                version = "0.0.4"
+                from(components["release"])   //aar 파일
             }
-
-            create("release", MavenPublication::class) {
-                artifactId = "ci-cd-test-release"
-                version = "${versionName}-release"
-                from(components["release"])
-            }
-
-            create("qa", MavenPublication::class) {
-                artifactId = "ci-cd-test-qa"
-                version = "${versionName}-qa"
-                from(components["qa"])
-            }
-
-//            android.libraryVariants.forEach { variant ->
-//                val buildType = variant.buildType.name
-//
-//                register<MavenPublication>(buildType) {
-//                    artifactId = "ci-cd-test-${buildType.capitalized()}"
-//                    version = "0.0.3-${buildType.capitalized()}"
-//                    from(components[buildType])
-//                }
-//            }
         }
     }
 }
@@ -53,20 +29,12 @@ android {
     }
 
     buildTypes {
-        debug {
-            isMinifyEnabled = false
-        }
-
         release {
-            isMinifyEnabled = true
+            isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-        }
-
-        create("qa") {
-            initWith(buildTypes["debug"])
         }
     }
 
